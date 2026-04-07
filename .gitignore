@@ -1,2 +1,4 @@
 .env
-.venv
+.venvdataset/
+__pycache__/
+venv/
