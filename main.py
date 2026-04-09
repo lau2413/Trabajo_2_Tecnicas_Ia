@@ -5,59 +5,58 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Importamos el trabajo de los 3 integrantes
+# NOTA: Al importar data, se ejecutará su bloque de prueba e imprimirá el tamaño de un lote. Es normal.
 from src.data import obtener_dataloaders
 from src.modelo import entrenar_modelo
 from src.optimizador import ejecutar_nas
 
 def main():
-    print("="*60)
+    print("\n" + "="*60)
     print("🚀 INICIANDO INTEGRACIÓN DEL PROYECTO (NAS + CNN + DATOS)")
     print("="*60)
     
     # ---------------------------------------------------------
-    # 1. CARGA DE DATOS (Persona 1)
+    # 1. OBTENER LOS DATOS (Persona 1)
     # ---------------------------------------------------------
-    print("\n[1] Cargando datos y generando DataLoaders...")
-    # Como NAS requiere entrenar muchísimos modelos, usar K-Fold completo para cada 
-    # individuo sería computacionalmente inviable. Extraeremos solo el primer "fold" 
-    # (un set de entrenamiento y uno de validación) para evaluar los cromosomas.
+    print("\n[1] Extrayendo los DataLoaders...")
+    # Llamamos al generador de K-Fold de tu compañero
     generador_folds = obtener_dataloaders(batch_size=64, n_splits=5)
+    
+    # Extraemos solo el primer fold (train y val) para evaluar rápido los cromosomas
     train_loader, val_loader = next(generador_folds)
-    print("✔️ DataLoaders listos.")
+    print("✔️ DataLoaders extraídos correctamente.")
 
     # ---------------------------------------------------------
-    # 2. FUNCIÓN PUENTE / FITNESS (Persona 2)
+    # 2. CREAR LA FUNCIÓN PUENTE (Tu trabajo - Persona 2)
     # ---------------------------------------------------------
-    print("\n[2] Configurando la función de Fitness...")
+    print("\n[2] Configurando la función de Fitness con tu CNN...")
     
-    def funcion_fitness(cromosoma):
+    def fitness_real(cromosoma):
         """
-        Esta función es el puente: El optimizador le pasa un cromosoma, 
-        aquí se entrena el modelo y se devuelve el accuracy para que 
-        el optimizador sepa qué tan bueno es.
+        Esta es la función que reemplaza el 'dummy_fitness' de tu compañero.
+        Recibe un cromosoma, entrena tu modelo real con los datos reales,
+        y devuelve el accuracy.
         """
-        # Usamos 3 épocas para que la búsqueda no tarde días. 
-        # Cuando quieran el modelo final definitivo, se pueden subir las épocas.
-        accuracy = entrenar_modelo(
+        # Usamos 3 épocas por individuo para que la búsqueda inicial no tome horas
+        return entrenar_modelo(
             cromosoma=cromosoma, 
             dataloader_train=train_loader, 
             dataloader_val=val_loader, 
             epocas=3 
         )
-        return accuracy
 
     # ---------------------------------------------------------
-    # 3. ALGORITMO EVOLUTIVO (Persona 3)
+    # 3. EJECUTAR EL OPTIMIZADOR (Persona 3)
     # ---------------------------------------------------------
     print("\n[3] Iniciando la Búsqueda de Arquitectura Neuronal (NAS)...")
     
-    # Valores pequeños para la primera prueba de integración
+    # Pasamos tu función 'fitness_real' al código de tu compañero
     resultados = ejecutar_nas(
-        tam_poblacion=4,      # 4 individuos por generación
-        num_generaciones=3,   # 3 generaciones
+        tam_poblacion=4,      # 4 arquitecturas distintas por generación
+        num_generaciones=2,   # 2 generaciones (para una prueba rápida)
         prob_mutacion=0.3,
         elitismo=1,
-        fitness_fn=funcion_fitness, # <--- Pasamos nuestra función puente
+        fitness_fn=fitness_real, # <--- ¡Aquí ocurre la integración!
         verbose=True
     )
 
