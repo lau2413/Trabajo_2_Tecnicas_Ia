@@ -27,8 +27,7 @@ class CNN_Dinamica(nn.Module):
             self.conv_layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
             in_channels = out_channels # La salida de esta capa es la entrada de la siguiente
             
-        # Global Average Pooling: El gran truco para evitar problemas de dimensiones.
-        # Convierte cualquier tensor (Batch, Canales, Alto, Ancho) en (Batch, Canales, 1, 1)
+        # Global Average Pooling
         self.global_pool = nn.AdaptiveAvgPool2d(1)
         
         # Construir capas densas dinámicamente
@@ -41,7 +40,7 @@ class CNN_Dinamica(nn.Module):
             self.dense_layers.append(nn.ReLU())
             in_features = units
             
-        # Capa de salida (26 letras en el abecedario, Sign Language MNIST suele tener 24 o 26 dependiendo si excluyen J y Z)
+        # Capa de salida (26 letras en el abecedario)
         self.salida = nn.Linear(in_features, num_clases)
 
     def forward(self, x):
@@ -100,7 +99,7 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
     mejor_val_acc = 0.0
     
     for epoca in range(epocas):
-        # --- FASE DE ENTRENAMIENTO ---
+        # FASE DE ENTRENAMIENTO
         modelo.train()
         train_loss, correctos_train, total_train = 0.0, 0, 0
         
@@ -116,7 +115,7 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
             total_train += etiquetas.size(0)
             correctos_train += (predichos == etiquetas).sum().item()
             
-        # --- FASE DE VALIDACIÓN ---
+        # FASE DE VALIDACIÓN
         modelo.eval()
         val_loss, correctos_val, total_val = 0.0, 0, 0
         
@@ -144,8 +143,7 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
         if early_stopping.detener:
             print("Early stopping activado. Deteniendo entrenamiento.")
             break
-            
-    # La Persona 3 (Optimizador) necesitará este valor para saber qué tan bueno fue el cromosoma
+    # saber qué tan bueno fue el cromosoma
     return mejor_val_acc
 
 # ==========================================
@@ -162,16 +160,12 @@ if __name__ == "__main__":
         'lr': 0.005
     }
     
-    # 2. Creamos datos falsos simulando la salida del DataLoader de la Persona 1
-    # 32 imágenes, 1 canal, 28x28 píxeles
     imagenes_falsas = torch.randn(32, 1, 28, 28)
     # 32 etiquetas aleatorias entre 0 y 25
     etiquetas_falsas = torch.randint(0, 26, (32,))
     
-    # Un DataLoader falso muy simple (una sola lista con 1 lote)
     dataloader_falso = [(imagenes_falsas, etiquetas_falsas)]
     
-    # 3. Probamos que la función corra sin errores de dimensiones
     acc = entrenar_modelo(cromosoma_prueba, dataloader_train=dataloader_falso, dataloader_val=dataloader_falso, epocas=3)
     
     print(f"Prueba finalizada exitosamente. Mejor Accuracy Dummy: {acc:.4f}")
