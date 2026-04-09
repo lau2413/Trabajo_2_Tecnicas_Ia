@@ -84,7 +84,7 @@ class EarlyStopping:
 # ==========================================
 # 3. BUCLE DE ENTRENAMIENTO
 # ==========================================
-def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
+def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=5):
     """
     Entrena la CNN dinámica y retorna el mejor accuracy en validación.
     """

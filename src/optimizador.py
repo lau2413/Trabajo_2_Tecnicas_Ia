@@ -308,20 +308,27 @@ def ejecutar_nas(
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  NAS Optimizer - Deteccion de lenguaje de señas")
-    print("  Persona 3 | Modo prueba con dummy_fitness")
+    print("  NAS Optimizer — Detección de Lenguaje de Señas")
+    print("  Persona 3 | Modo Integración")
     print("=" * 60)
 
+    from data import obtener_dataloaders
+    from modelo import entrenar_modelo
+
+    #Se toma el primer fold para evaluar cada cromosoma
+    train_loader, val_loader = next(iter(obtener_dataloaders(batch_size=64, n_splits=5)))
+
+    # ── Ejecutar NAS con modelo real ───────────────────────────
     resultado = ejecutar_nas(
-        tam_poblacion=8,
-        num_generaciones=4,
+        tam_poblacion=4,
+        num_generaciones=3,
         prob_mutacion=0.3,
         elitismo=2,
-        fitness_fn=None,   # dummy_fitness por defecto
+        fitness_fn=lambda c: entrenar_modelo(c, train_loader, val_loader),
         verbose=True,
     )
 
-    print("\n[NAS] Historial de evolucion:")
+    print("\n[NAS] Historial de evolución:")
     print(f"  {'Gen':>4} | {'Mejor':>8} | {'Promedio':>8}")
     print("  " + "-" * 28)
     for h in resultado["historial"]:
