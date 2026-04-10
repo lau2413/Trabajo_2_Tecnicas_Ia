@@ -37,7 +37,7 @@ def main():
             cromosoma=cromosoma, 
             dataloader_train=train_loader, 
             dataloader_val=val_loader, 
-            epocas=10
+            epocas=8
         )
 
     # ---------------------------------------------------------
@@ -46,8 +46,8 @@ def main():
     print("\n[3] Iniciando la Búsqueda de Arquitectura Neuronal (NAS)...")
     
     resultados = ejecutar_nas(
-        tam_poblacion=10,      # 10 arquitecturas distintas por generación
-        num_generaciones=5,   # 5 generaciones
+        tam_poblacion=8,      # 8 arquitecturas distintas por generación
+        num_generaciones=2,   # 2 generaciones
         prob_mutacion=0.3,
         elitismo=1,
         fitness_fn=fitness_real,
