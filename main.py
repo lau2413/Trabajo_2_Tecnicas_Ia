@@ -12,7 +12,7 @@ from src.optimizador import ejecutar_nas
 
 def main():
     print("\n" + "="*60)
-    print("🚀 INICIANDO INTEGRACIÓN DEL PROYECTO (NAS + CNN + DATOS)")
+    print("INICIANDO INTEGRACIÓN DEL PROYECTO (NAS + CNN + DATOS)")
     print("="*60)
     
     # ---------------------------------------------------------
@@ -24,7 +24,7 @@ def main():
     
     # Extraemos solo el primer fold (train y val) para evaluar rápido los cromosomas
     train_loader, val_loader = next(generador_folds)
-    print("✔️ DataLoaders extraídos correctamente.")
+    print("DataLoaders extraídos correctamente")
 
     # ---------------------------------------------------------
     # 2. CREAR LA FUNCIÓN PUENTE (Tu trabajo - Persona 2)
@@ -64,7 +64,7 @@ def main():
     # 4. RESULTADOS FINALES
     # ---------------------------------------------------------
     print("\n" + "="*60)
-    print("🏆 BÚSQUEDA NAS FINALIZADA 🏆")
+    print("BÚSQUEDA NAS FINALIZADA")
     print("="*60)
     print(f"Mejor Accuracy Encontrado: {resultados['mejor_fitness']:.4f}")
     print("Mejor Arquitectura Encontrada:")
