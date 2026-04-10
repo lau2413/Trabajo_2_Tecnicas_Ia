@@ -21,7 +21,7 @@ class CNN_Dinamica(nn.Module):
         kernels = cromosoma.get('kernel_sizes', [])
         
         for out_channels, k_size in zip(filtros, kernels):
-            # Usamos padding='same' para no perder dimensiones espaciales por la convolución
+
             self.conv_layers.append(nn.Conv2d(in_channels, out_channels, kernel_size=k_size, padding='same'))
             self.conv_layers.append(nn.ReLU())
             self.conv_layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
@@ -50,7 +50,7 @@ class CNN_Dinamica(nn.Module):
             
         # Aplanar de forma segura
         x = self.global_pool(x)
-        x = torch.flatten(x, 1) # Aplanar desde la dimensión 1 (ignorando el Batch)
+        x = torch.flatten(x, 1)
         
         # Pasar por capas densas
         for layer in self.dense_layers:
@@ -87,9 +87,10 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
     """
     Entrena la CNN dinámica y retorna el mejor accuracy en validación.
     """
-    modelo = CNN_Dinamica(cromosoma)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    modelo = CNN_Dinamica(cromosoma).to(device)
     
-    # Extraer hiperparámetros del cromosoma (con valores por defecto si no existen)
     lr = cromosoma.get('lr', 0.001)
     
     criterio = nn.CrossEntropyLoss()
@@ -104,6 +105,7 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
         train_loss, correctos_train, total_train = 0.0, 0, 0
         
         for imagenes, etiquetas in dataloader_train:
+            imagenes, etiquetas = imagenes.to(device), etiquetas.to(device)
             optimizador.zero_grad()
             salidas = modelo(imagenes)
             loss = criterio(salidas, etiquetas)
@@ -121,6 +123,7 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
         
         with torch.no_grad():
             for imagenes, etiquetas in dataloader_val:
+                imagenes, etiquetas = imagenes.to(device), etiquetas.to(device)
                 salidas = modelo(imagenes)
                 loss = criterio(salidas, etiquetas)
                 
@@ -143,16 +146,16 @@ def entrenar_modelo(cromosoma, dataloader_train, dataloader_val, epocas=20):
         if early_stopping.detener:
             print("Early stopping activado. Deteniendo entrenamiento.")
             break
-    # saber qué tan bueno fue el cromosoma
+    # Saber qué tan bueno fue el cromosoma
     return mejor_val_acc
 
 # ==========================================
-# 4. PRUEBA LOCAL (El "Dummy Test")
+# 4. PRUEBA LOCAL
 # ==========================================
 if __name__ == "__main__":
     print("Probando el modelo con datos falsos (Dummy Data)...")
     
-    # 1. Definimos un cromosoma de prueba
+    # Cromosoma de prueba
     cromosoma_prueba = {
         'conv_filters': [16, 32], 
         'kernel_sizes': [3, 3], 
@@ -169,4 +172,3 @@ if __name__ == "__main__":
     acc = entrenar_modelo(cromosoma_prueba, dataloader_train=dataloader_falso, dataloader_val=dataloader_falso, epocas=3)
     
     print(f"Prueba finalizada exitosamente. Mejor Accuracy Dummy: {acc:.4f}")
-    print("¡Tu módulo está listo para recibir los datos reales!")
